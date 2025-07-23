@@ -1,6 +1,6 @@
 // backend/config/db.js
 const { Pool } = require('pg');
-require('dotenv').config(); // Load environment variables
+// REMOVED: require('dotenv').config(); // Render handles env vars directly
 
 // Create a new PostgreSQL pool instance
 const pool = new Pool({
@@ -9,6 +9,12 @@ const pool = new Pool({
     database: process.env.DB_DATABASE,
     password: process.env.DB_PASSWORD,
     port: process.env.DB_PORT,
+    // Add SSL configuration for production if your hosting provider requires it
+    // For Render, you'll typically use the DATABASE_URL environment variable,
+    // which handles SSL automatically. This explicit config is more for local.
+    // ssl: {
+    //     rejectUnauthorized: false // Use this if you encounter SSL issues in development/staging
+    // }
 });
 
 // Test the database connection when the module is loaded

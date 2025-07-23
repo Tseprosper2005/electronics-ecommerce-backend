@@ -1,7 +1,7 @@
 // backend/server.js
 const express = require('express');
 const cors = require('cors');
-require('dotenv').config(); // Load environment variables from .env file
+// REMOVED: require('dotenv').config(); // Render handles env vars directly
 const stripe = require('stripe')(process.env.STRIPE_SECRET_KEY); // Initialize Stripe
 
 // Import database configuration
