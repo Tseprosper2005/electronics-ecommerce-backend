@@ -23,6 +23,20 @@ const messageRoutes = require('./routes/messageRoutes'); // Ensure message route
 const app = express();
 const port = process.env.PORT || 3001; // Use PORT from environment or default to 3001
 
+// --- CORS Configuration (IMPORTANT for Frontend-Backend Communication) ---
+// Replace 'https://ecommerce-frontend-app.onrender.com' with your actual deployed frontend URL
+const corsOptions = {
+    origin: 'https://ecommerce-frontend-app.onrender.com', // Allow requests ONLY from your deployed frontend
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE'], // Allowed HTTP methods
+    allowedHeaders: ['Content-Type', 'Authorization'], // Allowed headers
+    credentials: true // Allow cookies and authorization headers to be sent
+};
+app.use(cors(corsOptions)); // Apply CORS middleware with specific options
+// --- END CORS Configuration ---
+
+
+app.use(express.json()); // To parse JSON bodies from incoming requests (after webhook for raw body)
+
 // --- Stripe Webhook Endpoint (MUST be before express.json() if raw body is needed) ---
 // Stripe recommends using the raw body for webhook signature verification
 app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (req, res) => {
@@ -85,38 +99,6 @@ app.post('/api/stripe-webhook', express.raw({type: 'application/json'}), async (
 
     res.json({received: true});
 });
-
-// Middleware
-app.use(cors()); // Enable CORS for all origins (for development)
-app.use(express.json()); // To parse JSON bodies from incoming requests (after webhook for raw body)
-
-// --- Stripe API Endpoint for creating Payment Intent ---
-app.post('/api/create-payment-intent', authenticateToken, async (req, res) => {
-    const { amount, orderId } = req.body; // amount should be in cents (e.g., $10.00 -> 1000)
-
-    if (!amount || amount <= 0 || !orderId) {
-        return res.status(400).json({ message: 'Amount and Order ID are required.' });
-    }
-
-    // Check if Stripe is initialized with a real key
-    if (process.env.STRIPE_SECRET_KEY === 'sk_test_DUMMY_KEY_FOR_RENDER_DEPLOYMENT' || !process.env.STRIPE_SECRET_KEY) {
-        console.error("Stripe Secret Key is not properly configured. Payment intent creation will fail.");
-        return res.status(500).json({ message: "Payment service not available due to missing configuration." });
-    }
-
-    try {
-        const paymentIntent = await stripe.paymentIntents.create({
-            amount: Math.round(amount * 100), // Stripe expects amount in cents
-            currency: 'usd',
-            metadata: { orderId: orderId.toString() }, // Attach your internal order ID
-        });
-        return res.json({ clientSecret: paymentIntent.client_secret });
-    } catch (error) {
-        console.error('Error creating Payment Intent:', error.message);
-        res.status(500).json({ message: error.message });
-    }
-});
-
 
 // Route Middlewares
 app.use('/api/auth', authRoutes); // Authentication routes (register, login)
