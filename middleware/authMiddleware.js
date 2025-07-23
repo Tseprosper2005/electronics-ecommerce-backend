@@ -1,8 +1,8 @@
 // backend/middleware/authMiddleware.js
 const jwt = require('jsonwebtoken');
-require('dotenv').config(); // Load environment variables
+// REMOVED: require('dotenv').config(); // Load environment variables
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET; // JWT_SECRET will now come directly from Render's env vars
 
 // Middleware to authenticate JWT token
 const authenticateToken = (req, res, next) => {

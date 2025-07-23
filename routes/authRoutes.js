@@ -4,9 +4,9 @@ const router = express.Router();
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 const pool = require('../config/db'); // Import the database pool
-require('dotenv').config(); // Load environment variables
+// REMOVED: require('dotenv').config(); // Load environment variables
 
-const JWT_SECRET = process.env.JWT_SECRET;
+const JWT_SECRET = process.env.JWT_SECRET; // JWT_SECRET will now come directly from Render's env vars
 
 // User Registration Route
 router.post('/register', async (req, res) => {
